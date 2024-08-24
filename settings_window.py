@@ -3,7 +3,7 @@ from tkinter import ttk
 from tkinter.messagebox import askquestion, showwarning
 from tkinter.filedialog import askdirectory
 import json
-from pathlib import Path
+from hotkey_listener import HotkeyListener
 
 
 class SettingsWindow(Tk):
@@ -17,6 +17,7 @@ class SettingsWindow(Tk):
         for c in range(14): self.columnconfigure(index=c, weight=1)
         for r in range(7): self.rowconfigure(index=r, weight=1)
 
+        self.hotkey_listener = HotkeyListener()
         self.image_formats = ('PNG', 'JPEG', 'BMP', 'GIF', 'TIFF', 'WEBP')
         
         self.load_data_from_json()
@@ -49,6 +50,13 @@ class SettingsWindow(Tk):
         button_choose_save_path = ttk.Button(text='...', width=2, command=self.choose_save_path)
         button_choose_save_path.grid(column=13, row=2, padx=5)
 
+        label_hotkey = ttk.Label(text='Hotkey')
+        label_hotkey.grid(column=0, row=3)
+
+        self.button_choose_hotkey = ttk.Button(text=self.hotkey, command=self.change_hotkey)
+        self.button_choose_hotkey.grid(column=8, row=3, columnspan=6)
+
+
         self.button_ok = ttk.Button(self, text='Ok', command=self.close_with_save)
         self.button_ok.grid(column=7, row=6, columnspan=3)
 
@@ -67,13 +75,15 @@ class SettingsWindow(Tk):
         self.image_format = StringVar(value=data['image_format'])
         self.jpeg_quality = IntVar(value=data['jpeg_quality'])
         self.save_path = StringVar(value=data['save_path'])
-    
+        self.hotkey = data['hotkey']
+        
 
     def close_with_save(self):
         data = {
             'image_format': self.image_format.get(),
             'jpeg_quality': int(self.jpeg_quality.get()),
-            'save_path': self.save_path.get()
+            'save_path': self.save_path.get(),
+            'hotkey': self.hotkey
         }
         with open('config.json', 'w') as file:
             json.dump(data, file, indent=4)
@@ -91,6 +101,7 @@ class SettingsWindow(Tk):
 
 
     def is_valid_path(self, path):
+        from pathlib import Path
         if Path(path).is_dir():
             return True
         else:
@@ -103,6 +114,13 @@ class SettingsWindow(Tk):
         path = askdirectory(title='Choose Save Path')
         if path:
             self.save_path.set(value=path)
+
+
+    def change_hotkey(self):
+        self.button_choose_hotkey.config(text='Press any key...')
+        self.hotkey_listener.capture_hotkey_input()
+        self.hotkey = self.hotkey_listener.get_hotkey()
+        self.button_choose_hotkey.config(text=self.hotkey)
 
 
 if __name__ == '__main__':

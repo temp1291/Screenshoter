@@ -3,13 +3,9 @@ from PIL import Image
 
 
 class Tray:
-    def __init__(self, app):
-        self.app = app
-
-
-    def run(self):
+    def run(self, app):
         menu = Menu(
-            MenuItem('Quit', self.app.quit)
+            MenuItem('Quit', app.quit)
         )
         self.icon = Icon('Screenshoter', self.create_image(), menu=menu)
         self.icon.run()

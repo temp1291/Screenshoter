@@ -1,5 +1,6 @@
 {
     "image_format": "PNG",
     "jpeg_quality": 75,
-    "save_path": "Screenshots"
+    "save_path": ".",
+    "hotkey": "print_screen"
 }
